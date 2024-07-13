@@ -1,7 +1,8 @@
 package com.example.products.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,9 +19,11 @@ public class Subcategory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
+    @JsonBackReference
     private Category category;
 
     @OneToMany(mappedBy = "subcategory", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<Product> products = new HashSet<>();
 
     public Subcategory() {
@@ -59,8 +62,7 @@ public class Subcategory {
         return products;
     }
 
-    public void addProduct(Product product) {
-        products.add(product);
-        product.setSubcategory(this);
+    public void setProducts(Set<Product> products) {
+        this.products = products;
     }
 }

@@ -1,15 +1,10 @@
 package com.example.products.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "categories")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Category {
 
     @Id
@@ -19,8 +14,15 @@ public class Category {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Subcategory> subcategories = new HashSet<>();
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "left_subcategory_id", referencedColumnName = "id")
+    @JsonManagedReference
+    private Subcategory leftSubcategory;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "right_subcategory_id", referencedColumnName = "id")
+    @JsonManagedReference
+    private Subcategory rightSubcategory;
 
     public Category() {
     }
@@ -45,17 +47,30 @@ public class Category {
         this.name = name;
     }
 
-    public Set<Subcategory> getSubcategories() {
-        return subcategories;
+    public Subcategory getLeftSubcategory() {
+        return leftSubcategory;
     }
 
-    public void addSubcategory(Subcategory subcategory) {
-        subcategories.add(subcategory);
-        subcategory.setCategory(this);
+    public void setLeftSubcategory(Subcategory leftSubcategory) {
+        this.leftSubcategory = leftSubcategory;
     }
 
-    public void removeSubcategory(Subcategory subcategory) {
-        subcategories.remove(subcategory);
-        subcategory.setCategory(null);
+    public Subcategory getRightSubcategory() {
+        return rightSubcategory;
+    }
+
+    public void setRightSubcategory(Subcategory rightSubcategory) {
+        this.rightSubcategory = rightSubcategory;
+    }
+
+    public boolean addSubcategory(Subcategory subcategory) {
+        if (leftSubcategory == null) {
+            this.leftSubcategory = subcategory;
+            return true;
+        } else if (rightSubcategory == null) {
+            this.rightSubcategory = subcategory;
+            return true;
+        }
+        return false;
     }
 }

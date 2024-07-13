@@ -1,49 +1,68 @@
 package com.example.products.service;
 
-import com.example.products.model.Category;
+import com.example.products.model.Product;
 import com.example.products.model.Subcategory;
 import com.example.products.repository.CategoryRepository;
+import com.example.products.repository.ProductRepository;
 import com.example.products.repository.SubcategoryRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ProductService {
 
     @Autowired
-    private CategoryRepository categoryRepository;
+    private ProductRepository productRepository;
     @Autowired
     private SubcategoryRepository subcategoryRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Transactional
-    public Subcategory addSubcategoryToCategory(int categoryId, String subcategoryName) {
-        Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
-        if (categoryOptional.isPresent()) {
-            Category category = categoryOptional.get();
-            if (category.getSubcategories().size() >= 2) {
-                throw new IllegalStateException("Maximum of 2 subcategories allowed per category.");
-            }
-            Subcategory subcategory = new Subcategory(subcategoryName, category);
-            category.addSubcategory(subcategory);
-            return subcategoryRepository.save(subcategory);
+    public Product addProduct(Long subcategoryId, String productName, Double productPrice, String productDescription) {
+        Optional<Subcategory> subcategory = subcategoryRepository.findById(subcategoryId);
+        if (subcategory.isPresent()) {
+            Product product = new Product(productName, subcategory.get(),productPrice,productDescription);
+            return productRepository.save(product);
         } else {
-            throw new IllegalArgumentException("Category not found with ID: " + categoryId);
+            throw new IllegalArgumentException("Subcategory not found");
         }
     }
 
     @Transactional
-    public void deleteSubcategory(Long subcategoryId) {
-        Optional<Subcategory> subcategoryOptional = subcategoryRepository.findById(subcategoryId);
-        if (subcategoryOptional.isPresent()) {
-            Subcategory subcategory = subcategoryOptional.get();
-            Category category = subcategory.getCategory();
-            category.removeSubcategory(subcategory);
-            subcategoryRepository.delete(subcategory);
+    public Product updateProduct(Long productId, String newName) {
+        Optional<Product> product = productRepository.findById(productId);
+        if (product.isPresent()) {
+            Product existingProduct = product.get();
+            existingProduct.setName(newName);
+            return productRepository.save(existingProduct);
         } else {
-            throw new IllegalArgumentException("Subcategory not found with ID: " + subcategoryId);
+            throw new IllegalArgumentException("Product not found");
         }
+    }
+
+    @Transactional
+    public void deleteProduct(Long productId) {
+        if (productRepository.existsById(productId)) {
+            productRepository.deleteById(productId);
+        } else {
+            throw new IllegalArgumentException("Product not found");
+        }
+    }
+
+    public List<Product> getAllProductsBySubcategoryId(Long subcategoryId) {
+        return productRepository.findAllBySubcategoryId(subcategoryId);
+    }
+
+    public List<Product> getAllProductsByCategoryId(Long categoryId) {
+        return productRepository.findAllByCategoryId(categoryId);
+    }
+
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
     }
 }
