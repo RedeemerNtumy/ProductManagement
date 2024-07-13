@@ -25,6 +25,11 @@ public class CategoryService {
         Category category = new Category(name);
         return categoryRepository.save(category);
     }
+
+    @Transactional
+    public Category updateCategory(Category category) {
+        return categoryRepository.save(category);
+    }
     @Transactional
     public Category getCategoryById(int categoryId) {
         return categoryRepository.findById(categoryId).orElse(null);

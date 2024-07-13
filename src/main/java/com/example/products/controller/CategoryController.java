@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -26,6 +27,23 @@ public class CategoryController {
         try {
             Category category = categoryService.createCategory(name);
             return ResponseEntity.ok(category);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    @PutMapping
+    public ResponseEntity<Category> updateCategory(@RequestParam int id, @RequestParam String name) {
+        try {
+            Optional<Category> categoryOptional = Optional.ofNullable(categoryService.getCategoryById(id));
+            if (categoryOptional.isPresent()) {
+                Category category = categoryOptional.get();
+                category.setName(name);
+                categoryService.updateCategory(category);
+                return ResponseEntity.ok(category);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
