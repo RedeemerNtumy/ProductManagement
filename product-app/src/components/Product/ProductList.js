@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 function ProductList() {
     const [products, setProducts] = useState([]);
@@ -10,27 +11,29 @@ function ProductList() {
             try {
                 const response = await axios.get('/api/products');
                 setProducts(response.data);
-            } catch (error) {
-                setError('Failed to fetch products');
-                console.error(error);
+            } catch (err) {
+                setError('Failed to fetch products.');
             }
         };
-
         fetchProducts();
     }, []);
 
     return (
-        <div>
-            <h1>All Products</h1>
-            {error && <p>{error}</p>}
+        <div style={{ padding: '20px', maxWidth: '800px', margin: 'auto' }}>
+            <h2>Product List</h2>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             {products.length > 0 ? (
                 <ul>
                     {products.map((product) => (
-                        <li key={product.id}>{product.name}</li>
+                        <li key={product.id}>
+                            {product.name}
+                            <Link to={`/products/${product.id}/update`} style={{ marginLeft: '10px' }}>Edit</Link>
+                            <Link to={`/products/${product.id}/delete`} style={{ marginLeft: '10px' }}>Delete</Link>
+                        </li>
                     ))}
                 </ul>
             ) : (
-                <p>No products available.</p>
+                <p>No products found. Please add some products.</p>
             )}
         </div>
     );

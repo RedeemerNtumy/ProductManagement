@@ -1,34 +1,38 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import CategoryCreate from './Category/CategoryCreate';
-import CategoryDetails from './Category/CategoryDetails';
 import SubcategoryCreate from './Category/SubcategoryCreate';
-import SubcategoryDelete from './Category/SubcategoryDelete';
 import ProductAdd from './Product/ProductAdd';
-import ProductUpdate from './Product/ProductUpdate';
-import ProductDelete from './Product/ProductDelete';
-import ProductsBySubcategory from './Product/ProductsBySubcategory';
-import ProductsByCategory from './Product/ProductsByCategory';
+import CategoryList from './Category/CategoryList';
+import CategoryDetails from './Category/CategoryDetails';
 import ProductList from './Product/ProductList';
+import ProductUpdate from './Product/ProductUpdate'; // Ensure this file is implemented
+import ProductDelete from './Product/ProductDelete'; // Ensure this file is implemented
+import './App.css';  // Assuming you have some global styles defined here
 
 function App() {
     return (
         <Router>
-            <div>
-                <h1>Product Management System</h1>
-                <Routes>
-                    <Route path="/" element={<ProductList />} />
-                    <Route path="/categories/new" element={<CategoryCreate />} />
-                    <Route path="/categories/:categoryId" element={<CategoryDetails />} />
-                    <Route path="/categories/:categoryId/subcategories/new" element={<SubcategoryCreate />} />
-                    <Route path="/categories/:categoryId/subcategories/:subcategoryId/delete" element={<SubcategoryDelete />} />
-                    <Route path="/products/new" element={<ProductAdd />} />
-                    <Route path="/products/:productId/update" element={<ProductUpdate />} />
-                    <Route path="/products/:productId/delete" element={<ProductDelete />} />
-                    <Route path="/products/subcategory/:subcategoryId" element={<ProductsBySubcategory />} />
-                    <Route path="/products/category/:categoryId" element={<ProductsByCategory />} />
-                </Routes>
+            <div style={{ padding: '10px', backgroundColor: '#232F3E', color: 'white' }}>
+                <h1 style={{ textAlign: 'center' }}>Product Management System</h1>
+                <nav style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                    <Link to="/add-category" style={{ color: 'white', textDecoration: 'none' }}>Add Category</Link>
+                    <Link to="/add-subcategory" style={{ color: 'white', textDecoration: 'none' }}>Add Subcategory</Link>
+                    <Link to="/add-product" style={{ color: 'white', textDecoration: 'none' }}>Add Product</Link>
+                    <Link to="/categories" style={{ color: 'white', textDecoration: 'none' }}>Manage Categories</Link>
+                    <Link to="/products" style={{ color: 'white', textDecoration: 'none' }}>Manage Products</Link>
+                </nav>
             </div>
+            <Routes>
+                <Route path="/add-category" element={<CategoryCreate />} />
+                <Route path="/add-subcategory" element={<SubcategoryCreate />} />
+                <Route path="/add-product" element={<ProductAdd />} />
+                <Route path="/categories" element={<CategoryList />} />
+                <Route path="/categories/:categoryId" element={<CategoryDetails />} />
+                <Route path="/products" element={<ProductList />} />
+                <Route path="/products/:productId/update" element={<ProductUpdate />} />
+                <Route path="/products/:productId/delete" element={<ProductDelete />} />
+            </Routes>
         </Router>
     );
 }

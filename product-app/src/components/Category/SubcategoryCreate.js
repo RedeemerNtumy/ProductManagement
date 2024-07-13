@@ -1,38 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
 
 function SubcategoryCreate() {
-    const { categoryId } = useParams();
-    const [name, setName] = useState('');
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [subcategoryName, setSubcategoryName] = useState('');
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await axios.get('/api/categories');
+                setCategories(response.data);
+            } catch (err) {
+                setError('Failed to fetch categories.');
+            }
+        };
+        fetchCategories();
+    }, []);
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        if (!selectedCategory) {
+            setError('Please select a category.');
+            return;
+        }
         try {
-            const response = await axios.post(`/api/categories/${categoryId}/subcategories`, { name });
-            console.log('Subcategory added:', response.data);
-            setName(''); // Reset the input after successful addition
-        } catch (error) {
-            setError('Failed to add subcategory');
-            console.error(error);
+            const params = new URLSearchParams();
+            params.append('name', subcategoryName);
+            const response = await axios.post(`/api/categories/${selectedCategory}/subcategories?${params.toString()}`);
+            if (response.status === 200) {
+                setSuccess('Subcategory added successfully!');
+                setSubcategoryName(''); // Clear input after successful submission
+                setError('');
+            } else {
+                throw new Error('Failed to create subcategory');
+            }
+        } catch (err) {
+            console.error(err);
+            setError('Failed to create subcategory. Please try again.');
+            setSuccess('');
         }
     };
 
     return (
-        <div>
-            <h1>Add Subcategory</h1>
-            {error && <p>{error}</p>}
-            <form onSubmit={handleSubmit}>
-                <label>
-                    Subcategory Name:
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
-                </label>
-                <button type="submit">Add</button>
+        <div style={{ padding: '20px', maxWidth: '500px', margin: 'auto' }}>
+            <h2>Add New Subcategory</h2>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    style={{ padding: '10px', fontSize: '16px' }}
+                >
+                    <option value="">Select Category</option>
+                    {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                            {category.name}
+                        </option>
+                    ))}
+                </select>
+                <input
+                    type="text"
+                    value={subcategoryName}
+                    onChange={(e) => setSubcategoryName(e.target.value)}
+                    placeholder="Enter subcategory name"
+                    style={{ padding: '10px', fontSize: '16px' }}
+                />
+                <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#FF9900', border: 'none', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>
+                    Add Subcategory
+                </button>
+                {error && <p style={{ color: 'red' }}>{error}</p>}
+                {success && <p style={{ color: 'green' }}>{success}</p>}
             </form>
         </div>
     );

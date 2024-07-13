@@ -7,6 +7,8 @@ import com.example.products.repository.SubcategoryRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,6 +28,11 @@ public class CategoryService {
     @Transactional
     public Category getCategoryById(int categoryId) {
         return categoryRepository.findById(categoryId).orElse(null);
+    }
+
+    @Transactional
+    public List<Category> getAllCategories() {
+        return categoryRepository.findAll(); // Using JpaRepository's findAll() method
     }
 
     @Transactional

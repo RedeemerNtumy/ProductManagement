@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
@@ -50,6 +52,15 @@ public class CategoryController {
             } else {
                 return ResponseEntity.notFound().build();
             }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    @GetMapping
+    public ResponseEntity<List<Category>> getAllCategories() {
+        try {
+            List<Category> categories = categoryService.getAllCategories();
+            return ResponseEntity.ok(categories);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
