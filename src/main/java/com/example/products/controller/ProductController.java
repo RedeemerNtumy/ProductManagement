@@ -18,19 +18,50 @@ public class ProductController {
     private ProductService productService;
 
     @PostMapping
-    public ResponseEntity<Product> addProduct(@RequestParam Long subcategoryId, @RequestParam String name, @RequestParam Double price, @RequestParam String description) {
+    public ResponseEntity<Product> addProduct(@RequestBody Product product) {
         try {
-            Product product = productService.addProduct(subcategoryId, name, price, description);
-            return ResponseEntity.ok(product);
+            // Directly pass the product object to the service layer.
+            Product savedProduct = productService.addProduct(product);
+            return ResponseEntity.ok(savedProduct);
         } catch (DataAccessException e) {
-            System.out.println(e+" Database exception");
+            System.out.println(e + " Database exception");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } catch (IllegalArgumentException e) {
-            System.out.println(e+" Invalid Argument");
+            System.out.println(e + " Invalid Argument");
             return ResponseEntity.badRequest().body(null);
         } catch (Exception e) {
-            System.out.println(e+" An unexpected error occurred");
+            System.out.println(e + " An unexpected error occurred");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    @GetMapping("/{productId}")
+    public ResponseEntity<Product> getProductById(@PathVariable Long productId) {
+        try {
+            Product product = productService.getProductById(productId);
+            if (product != null) {
+                return ResponseEntity.ok(product);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (DataAccessException e) {
+            System.out.println(e + " Database exception");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (Exception e) {
+            System.out.println(e + " An unexpected error occurred");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/searchProducts")
+    public ResponseEntity<List<Product>> searchProducts(@RequestParam String searchTerm) {
+        try {
+            List<Product> products = productService.searchProducts(searchTerm);
+            if (products.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(products, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

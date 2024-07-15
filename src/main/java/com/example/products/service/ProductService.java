@@ -1,5 +1,6 @@
 package com.example.products.service;
 
+import com.example.products.model.Category;
 import com.example.products.model.Product;
 import com.example.products.model.Subcategory;
 import com.example.products.repository.CategoryRepository;
@@ -9,6 +10,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.beans.Transient;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,15 +25,49 @@ public class ProductService {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    private Integer subcategoryId;
+
+    // Adjust in ProductService
     @Transactional
-    public Product addProduct(Long subcategoryId, String productName, Double productPrice, String productDescription) {
-        Optional<Subcategory> subcategory = subcategoryRepository.findById(subcategoryId);
-        if (subcategory.isPresent()) {
-            Product product = new Product(productName, subcategory.get(),productPrice,productDescription);
-            return productRepository.save(product);
-        } else {
-            throw new IllegalArgumentException("Subcategory not found");
+    public Product addProduct(Product product) {
+        Subcategory subcategory = subcategoryRepository.findById(Optional.ofNullable(product.getSubcategory().getId())
+                        .orElseThrow(() -> new IllegalArgumentException("Invalid subcategory ID")))
+                .orElseThrow(() -> new IllegalArgumentException("Subcategory not found"));
+        product.setSubcategory(subcategory);
+        return productRepository.save(product);
+    }
+
+    public List<Product> searchProducts(String searchTerm) {
+        List<Category> allCategories = categoryRepository.findAll();
+        List<Product> matchedProducts = new ArrayList<>();
+        for (Category category : allCategories) {
+            traverseAndMatch(category, searchTerm, matchedProducts);
         }
+        return matchedProducts;
+    }
+
+    private void traverseAndMatch(Category category, String searchTerm, List<Product> matchedProducts) {
+        // Check if the category has left subcategory and match products within
+        if (category.getLeftSubcategory() != null) {
+            matchProductsInSubcategory(category.getLeftSubcategory(), searchTerm, matchedProducts);
+        }
+
+        // Check if the category has right subcategory and match products within
+        if (category.getRightSubcategory() != null) {
+            matchProductsInSubcategory(category.getRightSubcategory(), searchTerm, matchedProducts);
+        }
+    }
+
+    private void matchProductsInSubcategory(Subcategory subcategory, String searchTerm, List<Product> matchedProducts) {
+        for (Product product : subcategory.getProducts()) {
+            if (product.getName().contains(searchTerm)) {
+                matchedProducts.add(product);
+            }
+        }
+    }
+    @Transactional
+    public Product getProductById(Long productId) {
+        return productRepository.findById(productId).orElse(null);
     }
 
     @Transactional

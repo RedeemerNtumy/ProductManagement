@@ -39,6 +39,10 @@ public class CategoryService {
     public List<Category> getAllCategories() {
         return categoryRepository.findAll(); // Using JpaRepository's findAll() method
     }
+    @Transactional
+    public List<Subcategory> getAllSubcategories() {
+        return subcategoryRepository.findAll(); // Assuming you have a subcategoryRepository
+    }
 
     @Transactional
     public void deleteCategory(int categoryId) {

@@ -32,7 +32,7 @@ function CategoryList() {
         setEditedName(category.name);
     };
 
-    const saveEdit = async (id) => {
+    const saveEdit = async (id, editedName) => {
         try {
             await axios.put(`/api/categories/${id}`, { name: editedName });
             setEditId(null);

@@ -1,40 +1,76 @@
+// ProductList.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import useDebounce from './useDebounce';
 
 function ProductList() {
     const [products, setProducts] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [productsPerPage] = useState(5);
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
     useEffect(() => {
         const fetchProducts = async () => {
+            setError('');
+            setLoading(true);
             try {
-                const response = await axios.get('/api/products');
-                setProducts(response.data);
+                const response = await axios.get(debouncedSearchTerm ? `/api/products/searchProducts?searchTerm=${encodeURIComponent(debouncedSearchTerm)}` : '/api/products');
+                setProducts(response.data || []);
             } catch (err) {
-                setError('Failed to fetch products.');
+                setError('Failed to fetch products. Please try again later.');
             }
+            setLoading(false);
         };
+
         fetchProducts();
-    }, []);
+    }, [debouncedSearchTerm]);
+
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const indexOfLastProduct = currentPage * productsPerPage;
+    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+    const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     return (
-        <div style={{ padding: '20px', maxWidth: '800px', margin: 'auto' }}>
+        <div style={{ padding: '20px', maxWidth: '1200px', margin: 'auto', fontFamily: 'Arial, sans-serif' }}>
             <h2>Product List</h2>
+            <form onSubmit={(e) => e.preventDefault()}>
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    placeholder="Enter product name"
+                    style={{ padding: '10px', margin: '10px', width: '300px' }}
+                />
+            </form>
+            {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
-            {products.length > 0 ? (
-                <ul>
-                    {products.map((product) => (
-                        <li key={product.id}>
-                            {product.name}
-                            <Link to={`/products/${product.id}/update`} style={{ marginLeft: '10px' }}>Edit</Link>
-                            <Link to={`/products/${product.id}/delete`} style={{ marginLeft: '10px' }}>Delete</Link>
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p>No products found. Please add some products.</p>
-            )}
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around' }}>
+                {currentProducts.map((product) => (
+                    <div key={product.id} style={{ margin: '10px', border: '1px solid #ccc', padding: '20px', width: '220px', borderRadius: '4px' }}>
+                        <img src={product.imageUrl || "/logo512.png"} alt="Product" style={{ width: '100%', marginBottom: '8px' }} />
+                        <h3>{product.name}</h3>
+                        <p>{product.description}</p>
+                        <p>${product.price}</p>
+                        <Link to={`/products/${product.id}`} style={{ display: 'block', backgroundColor: '#337AB7', color: 'white', padding: '10px', borderRadius: '4px', textAlign: 'center', textDecoration: 'none', marginTop: '8px' }}>View Details</Link>
+                    </div>
+                ))}
+            </div>
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                {[...Array(Math.ceil(products.length / productsPerPage)).keys()].map(number => (
+                    <button key={number + 1} onClick={() => paginate(number + 1)} style={{ backgroundColor: '#FF9900', color: 'white', padding: '10px', borderRadius: '4px', cursor: 'pointer', margin: '5px' }}>
+                        {number + 1}
+                    </button>
+                ))}
+            </div>
         </div>
     );
 }

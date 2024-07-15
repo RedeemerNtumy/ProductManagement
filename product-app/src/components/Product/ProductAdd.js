@@ -13,8 +13,8 @@ function ProductAdd() {
     useEffect(() => {
         const fetchSubcategories = async () => {
             try {
-                const response = await axios.get('/api/categories');  // Assuming endpoint to fetch all subcategories
-                setSubcategories(response.data.flatMap(category => category.subcategories));
+                const response = await axios.get('/api/categories/subcategories');
+                setSubcategories(response.data);
             } catch (err) {
                 setError('Failed to fetch subcategories.');
             }
@@ -24,24 +24,33 @@ function ProductAdd() {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        if (!selectedSubcategory || !productName || !price || !description) {
+            setError('Please fill all fields.');
+            return;
+        }
+
         try {
-            const response = await axios.post('/api/products', {
-                subcategoryId: selectedSubcategory,
+            const productData = {
                 name: productName,
                 price: parseFloat(price),
-                description
-            });
+                description,
+                subcategory: { id: parseInt(selectedSubcategory, 10) }
+            };
+
+            const response = await axios.post('/api/products', productData);
             if (response.status === 200) {
                 setSuccess('Product added successfully!');
                 setProductName('');
                 setPrice('');
                 setDescription('');
+                setSelectedSubcategory('');
                 setError('');
             } else {
                 throw new Error('Failed to create product');
             }
         } catch (err) {
-            setError('Failed to create product. Please try again.');
+            const message = err.response?.data?.message || 'Failed to create product. Please try again.';
+            setError(message);
             setSuccess('');
         }
     };
@@ -80,7 +89,9 @@ function ProductAdd() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Enter product description"
-                    style={{ padding: '10px', fontSize: '16px', height: '100px' }}
+                    style={{ padding: '10px',
+
+                        height: '100px', fontSize: '16px' }}
                 />
                 <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#FF9900', border: 'none', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}>
                     Add Product

@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -32,20 +32,20 @@ public class CategoryController {
         }
     }
 
-    @PutMapping
-    public ResponseEntity<Category> updateCategory(@RequestParam int id, @RequestParam String name) {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCategory(@PathVariable("id") int id, @RequestBody Map<String, String> body) {
         try {
-            Optional<Category> categoryOptional = Optional.ofNullable(categoryService.getCategoryById(id));
-            if (categoryOptional.isPresent()) {
-                Category category = categoryOptional.get();
+            String name = body.get("name");
+            Category category = categoryService.getCategoryById(id);
+            if (category != null) {
                 category.setName(name);
-                categoryService.updateCategory(category);
-                return ResponseEntity.ok(category);
+                Category updatedCategory = categoryService.updateCategory(category);
+                return ResponseEntity.ok(updatedCategory);
             } else {
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body("Error updating category: " + e.getMessage());
         }
     }
 
@@ -79,6 +79,15 @@ public class CategoryController {
         try {
             List<Category> categories = categoryService.getAllCategories();
             return ResponseEntity.ok(categories);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    @GetMapping("/subcategories")
+    public ResponseEntity<List<Subcategory>> getAllSubcategories() {
+        try {
+            List<Subcategory> subcategories = categoryService.getAllSubcategories();
+            return ResponseEntity.ok(subcategories);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

@@ -7,8 +7,10 @@ import CategoryList from './Category/CategoryList';
 import CategoryDetails from './Category/CategoryDetails';
 import ProductList from './Product/ProductList';
 import ProductUpdate from './Product/ProductUpdate'; // Ensure this file is implemented
-import ProductDelete from './Product/ProductDelete'; // Ensure this file is implemented
-import './App.css';  // Assuming you have some global styles defined here
+import ProductDelete from './Product/ProductDelete';
+import ProductDetails from "./Product/ProductDetails";
+// Ensure this file is implemented
+import './App.css'; // Assuming you have some global styles defined here
 
 function App() {
     return (
@@ -21,6 +23,8 @@ function App() {
                     <Link to="/add-product" style={{ color: 'white', textDecoration: 'none' }}>Add Product</Link>
                     <Link to="/categories" style={{ color: 'white', textDecoration: 'none' }}>Manage Categories</Link>
                     <Link to="/products" style={{ color: 'white', textDecoration: 'none' }}>Manage Products</Link>
+
+
                 </nav>
             </div>
             <Routes>
@@ -32,6 +36,7 @@ function App() {
                 <Route path="/products" element={<ProductList />} />
                 <Route path="/products/:productId/update" element={<ProductUpdate />} />
                 <Route path="/products/:productId/delete" element={<ProductDelete />} />
+                <Route path="/products/:productId" render={(props) => <ProductDetails {...props} />} />
             </Routes>
         </Router>
     );
