@@ -36,6 +36,11 @@ public class CategoryService {
     }
 
     @Transactional
+    public List<Subcategory> getSubcategoriesByCategoryId(int categoryId) {
+        return subcategoryRepository.findByCategoryId(categoryId);  // Assuming you have a method in your repository to find by category ID
+    }
+
+    @Transactional
     public List<Category> getAllCategories() {
         return categoryRepository.findAll(); // Using JpaRepository's findAll() method
     }

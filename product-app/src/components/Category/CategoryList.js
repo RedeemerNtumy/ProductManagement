@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import SubcategoryModal from './SubcategoryModal';
 
 function CategoryList() {
     const [categories, setCategories] = useState([]);
@@ -8,7 +9,9 @@ function CategoryList() {
     const [editId, setEditId] = useState(null);
     const [editedName, setEditedName] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [categoriesPerPage] = useState(5); // Adjust number of categories per page as needed
+    const [categoriesPerPage] = useState(5);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [subcategories, setSubcategories] = useState([]);// Adjust number of categories per page as needed
 
     useEffect(() => {
         fetchCategories();
@@ -23,20 +26,27 @@ function CategoryList() {
         }
     };
 
-    const indexOfLastCategory = currentPage * categoriesPerPage;
-    const indexOfFirstCategory = indexOfLastCategory - categoriesPerPage;
-    const currentCategories = categories.slice(indexOfFirstCategory, indexOfLastCategory);
+    const viewSubcategories = async (categoryId) => {
+        try {
+            const response = await axios.get(`/api/categories/${categoryId}/subcategories`);
+            setSubcategories(response.data);
+            setModalOpen(true);
+        } catch (err) {
+            setError('Failed to fetch subcategories. Please try again later.');
+        }
+    };
 
     const handleEdit = (category) => {
         setEditId(category.id);
         setEditedName(category.name);
     };
 
-    const saveEdit = async (id, editedName) => {
+    const saveEdit = async (id, name) => {
         try {
-            await axios.put(`/api/categories/${id}`, { name: editedName });
+            const response = await axios.put(`/api/categories/${id}`, { name });
             setEditId(null);
             fetchCategories(); // Refresh the list
+            setError('');
         } catch (err) {
             setError('Failed to update category. Please try again later.');
         }
@@ -57,6 +67,10 @@ function CategoryList() {
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+    const indexOfLastCategory = currentPage * categoriesPerPage;
+    const indexOfFirstCategory = indexOfLastCategory - categoriesPerPage;
+    const currentCategories = categories.slice(indexOfFirstCategory, indexOfLastCategory);
+
     return (
         <div style={{ padding: '20px', maxWidth: '1200px', margin: 'auto', fontFamily: 'Arial, sans-serif' }}>
             <h2>Category List</h2>
@@ -74,27 +88,60 @@ function CategoryList() {
                                     onChange={(e) => setEditedName(e.target.value)}
                                     style={{ margin: '8px 0', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', width: '100%' }}
                                 />
-                                <button onClick={() => saveEdit(category.id)} style={{ backgroundColor: '#FF9900', color: 'white', padding: '10px', borderRadius: '4px', border: 'none', cursor: 'pointer', width: '100%' }}>Save</button>
+                                <button onClick={() => saveEdit(category.id, editedName)} style={{ backgroundColor: '#4CAF50', color: 'white', padding: '10px', borderRadius: '4px', border: 'none', cursor: 'pointer', width: '100%' }}>Save</button>
                                 <button onClick={cancelEdit} style={{ backgroundColor: '#ccc', color: 'white', padding: '10px', borderRadius: '4px', border: 'none', cursor: 'pointer', width: '100%', marginTop: '8px' }}>Cancel</button>
                             </>
                         ) : (
                             <>
-                                <button onClick={() => handleEdit(category)} style={{ backgroundColor: '#FF9900', color: 'white', padding: '10px', borderRadius: '4px', border: 'none', cursor: 'pointer', width: '100%' }}>Edit</button>
-                                <button onClick={() => handleDelete(category.id)} style={{ backgroundColor: '#D9534F', color: 'white', padding: '10px', borderRadius: '4px', border: 'none', cursor: 'pointer', width: '100%', marginTop: '8px' }}>Delete</button>
-                                <Link to={`/categories/${category.id}/subcategories`} style={{ display: 'block', backgroundColor: '#337AB7', color: 'white', padding: '10px', borderRadius: '4px', textAlign: 'center', textDecoration: 'none', marginTop: '8px' }}>Manage Subcategories</Link>
+                                <button onClick={() => handleEdit(category)} style={{
+                                    backgroundColor: '#FF9900',
+                                    color: 'white',
+                                    padding: '10px',
+                                    borderRadius: '4px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    width: '100%'
+                                }}>Edit
+                                </button>
+                                <button onClick={() => handleDelete(category.id)} style={{
+                                    backgroundColor: '#D9534F',
+                                    color: 'white',
+                                    padding: '10px',
+                                    borderRadius: '4px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    width: '100%',
+                                    marginTop: '8px'
+                                }}>Delete
+                                </button>
+                                <button onClick={() => viewSubcategories(category.id)} style={{
+                                    display: 'block',
+                                    backgroundColor: '#337AB7',
+                                    color: 'white',
+                                    padding: '10px',
+                                    borderRadius: '4px',
+                                    textAlign: 'center',
+                                    textDecoration: 'none',
+                                    marginTop: '8px'
+                                }}>
+                                    View Subcategories
+                                </button>
                             </>
                         )}
                     </div>
                 ))}
             </div>
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <div style={{textAlign: 'center', marginTop: '20px'}}>
                 {[...Array(Math.ceil(categories.length / categoriesPerPage)).keys()].map(number => (
                     <button key={number + 1} onClick={() => paginate(number + 1)} style={{ backgroundColor: '#FF9900', color: 'white', padding: '10px', borderRadius: '4px', cursor: 'pointer', margin: '5px' }}>
                         {number + 1}
                     </button>
+
                 ))}
             </div>
+            <SubcategoryModal isOpen={modalOpen} onClose={() => setModalOpen(false)} subcategories={subcategories} />
         </div>
+
     );
 }
 

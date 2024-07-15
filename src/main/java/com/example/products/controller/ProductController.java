@@ -66,12 +66,25 @@ public class ProductController {
     }
 
     @PutMapping("/{productId}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long productId, @RequestParam String newName) {
+    public ResponseEntity<Product> updateProduct(@PathVariable Long productId, @RequestBody UpdateRequest updateRequest) {
         try {
-            Product updatedProduct = productService.updateProduct(productId, newName);
+            Product updatedProduct = productService.updateProduct(productId, updateRequest.getNewName());
             return ResponseEntity.ok(updatedProduct);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    // Additional class to map the JSON body
+    static class UpdateRequest {
+        private String newName;
+
+        public String getNewName() {
+            return newName;
+        }
+
+        public void setNewName(String newName) {
+            this.newName = newName;
         }
     }
 
@@ -102,4 +115,6 @@ public class ProductController {
         List<Product> products = productService.getAllProducts();
         return ResponseEntity.ok(products);
     }
+
+
 }

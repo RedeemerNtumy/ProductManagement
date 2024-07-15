@@ -92,6 +92,18 @@ public class CategoryController {
             return ResponseEntity.badRequest().build();
         }
     }
+    @GetMapping("/{categoryId}/subcategories")
+    public ResponseEntity<List<Subcategory>> getSubcategoriesByCategory(@PathVariable int categoryId) {
+        try {
+            List<Subcategory> subcategories = categoryService.getSubcategoriesByCategoryId(categoryId);
+            if (subcategories.isEmpty()) {
+                return ResponseEntity.noContent().build();  // No subcategories found
+            }
+            return ResponseEntity.ok(subcategories);  // Return the list of subcategories
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);  // Generic error handling
+        }
+    }
     @DeleteMapping("/{categoryId}/subcategories/{subcategoryId}")
     public ResponseEntity<?> deleteSubcategory(@PathVariable Long categoryId, @PathVariable Long subcategoryId) {
         try {
@@ -99,6 +111,24 @@ public class CategoryController {
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+    @DeleteMapping("/{categoryId}")
+    public ResponseEntity<?> deleteCategory(@PathVariable int categoryId) {
+        try {
+            Category category = categoryService.getCategoryById(categoryId);
+            if (category != null) {
+                // Ensure the category does not have subcategories or products that depend on it
+                if (category.hasSubCategory(category)) {
+                    return ResponseEntity.badRequest().body("Cannot delete category because it has subcategories.");
+                }
+                categoryService.deleteCategory(categoryId);
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error deleting category: " + e.getMessage());
         }
     }
 }

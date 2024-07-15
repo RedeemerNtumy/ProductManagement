@@ -1,7 +1,6 @@
-// ProductList.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import useDebounce from './useDebounce';
 
 function ProductList() {
@@ -11,26 +10,57 @@ function ProductList() {
     const [loading, setLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage] = useState(5);
+    const [editId, setEditId] = useState(null);
+    const [editedName, setEditedName] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchProducts = async () => {
-            setError('');
-            setLoading(true);
-            try {
-                const response = await axios.get(debouncedSearchTerm ? `/api/products/searchProducts?searchTerm=${encodeURIComponent(debouncedSearchTerm)}` : '/api/products');
-                setProducts(response.data || []);
-            } catch (err) {
-                setError('Failed to fetch products. Please try again later.');
-            }
-            setLoading(false);
-        };
-
         fetchProducts();
     }, [debouncedSearchTerm]);
 
+    const fetchProducts = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(debouncedSearchTerm ? `/api/products/searchProducts?searchTerm=${encodeURIComponent(debouncedSearchTerm)}` : '/api/products');
+            setProducts(response.data || []);
+        } catch (err) {
+            setError('Failed to fetch products. Please try again later.');
+        }
+        setLoading(false);
+    };
+
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
+    };
+
+    const handleEdit = (product) => {
+        setEditId(product.id);
+        setEditedName(product.name);
+    };
+
+    const saveEdit = async (id, name) => {
+        try {
+            await axios.put(`/api/products/${id}`, { newName: name });
+            setEditId(null);
+            fetchProducts(); // Refresh the list
+            setError('');
+        } catch (err) {
+            setError('Failed to update product. Please try again later.');
+        }
+    };
+
+    const cancelEdit = () => {
+        setEditId(null);
+    };
+
+    const handleDelete = async (productId) => {
+        try {
+            await axios.delete(`/api/products/${productId}`);
+            fetchProducts(); // Refresh the list after deletion
+        } catch (err) {
+            setError('Failed to delete product. Please try again later.');
+        }
     };
 
     const indexOfLastProduct = currentPage * productsPerPage;
@@ -60,7 +90,23 @@ function ProductList() {
                         <h3>{product.name}</h3>
                         <p>{product.description}</p>
                         <p>${product.price}</p>
-                        <Link to={`/products/${product.id}`} style={{ display: 'block', backgroundColor: '#337AB7', color: 'white', padding: '10px', borderRadius: '4px', textAlign: 'center', textDecoration: 'none', marginTop: '8px' }}>View Details</Link>
+                        {editId === product.id ? (
+                            <>
+                                <input
+                                    type="text"
+                                    value={editedName}
+                                    onChange={(e) => setEditedName(e.target.value)}
+                                    style={{ margin: '8px 0', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', width: '100%' }}
+                                />
+                                <button onClick={() => saveEdit(product.id, editedName)} style={{ backgroundColor: '#4CAF50', color: 'white', padding: '10px', borderRadius: '4px', border: 'none', cursor: 'pointer', width: '100%' }}>Save</button>
+                                <button onClick={cancelEdit} style={{ backgroundColor: '#ccc', color: 'white', padding: '10px', borderRadius: '4px', border: 'none', cursor: 'pointer', width: '100%', marginTop: '8px' }}>Cancel</button>
+                            </>
+                        ) : (
+                            <>
+                                <button onClick={() => handleEdit(product)} style={{ backgroundColor: '#FF9900', color: 'white', padding: '10px', borderRadius: '4px', border: 'none', cursor: 'pointer', width: '100%' }}>Edit</button>
+                                <button onClick={() => handleDelete(product.id)} style={{ backgroundColor: '#f44336', color: 'white', padding: '10px', borderRadius: '4px', textAlign: 'center', textDecoration: 'none', marginTop: '8px' }}>Delete</button>
+                            </>
+                        )}
                     </div>
                 ))}
             </div>

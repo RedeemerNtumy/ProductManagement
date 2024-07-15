@@ -1,80 +1,96 @@
-// ProductDetails.js
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useParams, useNavigate } from 'react-router-dom';
 
-const ProductDetails = ({ match }) => {
-    const [product, setProduct] = useState(null);
-    const [error, setError] = useState(null);
+function ProductDetails() {
+    const [product, setProduct] = useState({
+        name: '',
+        description: '',
+        price: '',
+        imageUrl: ''
+    });
+    const { id } = useParams();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await fetch(`/api/products/${match.params.productId}`);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                setProduct(data);
-            } catch (error) {
-                setError(error.message);
+                const response = await axios.get(`/api/products/${id}`);
+                setProduct(response.data);
+            } catch (err) {
+                console.error('Failed to fetch product details:', err);
+                // Optionally, handle the error more gracefully
             }
         };
-
         fetchProduct();
-    }, [match.params.productId]);
+    }, [id]);
 
-    if (error) {
-        return <div style={{ textAlign: 'center', color: 'red' }}>{error}</div>;
-    }
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setProduct(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
 
-    if (!product) {
-        return <div style={{ textAlign: 'center' }}>Loading...</div>;
-    }
-
-    const styles = {
-        productDetails: {
-            display: 'flex',
-            margin: '20px',
-            padding: '20px',
-            border: '1px solid #ccc',
-            borderRadius: '5px',
-            backgroundColor: '#fff'
-        },
-        productImage: {
-            width: '300px',
-            height: '300px',
-            marginRight: '20px',
-            objectFit: 'contain'
-        },
-        productInfo: {
-            display: 'flex',
-            flexDirection: 'column'
-        },
-        productName: {
-            fontSize: '24px',
-            marginBottom: '10px'
-        },
-        productDescription: {
-            fontSize: '16px',
-            color: '#555',
-            marginBottom: '20px'
-        },
-        productPrice: {
-            fontSize: '20px',
-            fontWeight: 'bold',
-            color: '#B12704'
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await axios.put(`/api/products/${id}`, product);
+            alert('Product updated successfully!');
+            navigate('/'); // Redirects to the home page or wherever you'd like
+        } catch (err) {
+            console.error('Failed to update product:', err);
+            alert('Failed to update product. Please try again.');
         }
     };
 
     return (
-        <div style={styles.productDetails}>
-            <img src={product.imageUrl || "/logo192.png"} alt={product.name} style={styles.productImage} />
-            <div style={styles.productInfo}>
-                <h1 style={styles.productName}>{product.name}</h1>
-                <p style={styles.productDescription}>{product.description}</p>
-                <p style={styles.productPrice}>${product.price}</p>
-            </div>
+        <div style={{ padding: '20px', maxWidth: '600px', margin: 'auto' }}>
+            <h2>Edit Product</h2>
+            <form onSubmit={handleSubmit}>
+                <label htmlFor="name">Product Name:</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={product.name}
+                    onChange={handleChange}
+                    required
+                />
+
+                <label htmlFor="description">Description:</label>
+                <textarea
+                    id="description"
+                    name="description"
+                    value={product.description}
+                    onChange={handleChange}
+                    required
+                />
+
+                <label htmlFor="price">Price:</label>
+                <input
+                    type="text"
+                    id="price"
+                    name="price"
+                    value={product.price}
+                    onChange={handleChange}
+                    required
+                />
+
+                <label htmlFor="imageUrl">Image URL:</label>
+                <input
+                    type="text"
+                    id="imageUrl"
+                    name="imageUrl"
+                    value={product.imageUrl}
+                    onChange={handleChange}
+                />
+
+                <button type="submit" style={{ marginTop: '20px' }}>Save Changes</button>
+            </form>
         </div>
     );
-};
+}
 
 export default ProductDetails;

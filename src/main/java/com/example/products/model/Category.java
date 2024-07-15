@@ -51,6 +51,10 @@ public class Category {
         return leftSubcategory;
     }
 
+    public boolean hasSubCategory(Category category) {
+        return (category.rightSubcategory != null && category.equals(rightSubcategory)) || (category.leftSubcategory != null && category.equals(leftSubcategory));
+    }
+
     public void setLeftSubcategory(Subcategory leftSubcategory) {
         this.leftSubcategory = leftSubcategory;
     }
