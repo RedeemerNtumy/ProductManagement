@@ -56,13 +56,15 @@ Below is the architecture diagram illustrating the main components of the system
 
 - **id**: Unique identifier for the category.
 - **name**: Name of the category.
-- **subcategories**: List of subcategories under this category.
+- **leftsubcategory**: Left child of the category as used in the Binary Tree Data Structure.
+- **rightsubcategory**: Right child of the category as used in the Binary Tree Data Structure.
 
 ### Subcategory
 
 - **id**: Unique identifier for the subcategory.
 - **name**: Name of the subcategory.
 - **products**: List of products within the subcategory.
+- **category**: Category that the subcategory belongs to.
 
 ### Product
 
@@ -70,6 +72,7 @@ Below is the architecture diagram illustrating the main components of the system
 - **name**: Name of the product.
 - **description**: Description of the product.
 - **price**: Price of the product.
+- **subcategory**: Subcategory the product belongs to.
 
 ## Persistence Layer
 
