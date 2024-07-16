@@ -13,9 +13,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
+    ProductService productService;
 
-    @Autowired
-    private ProductService productService;
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
     @PostMapping
     public ResponseEntity<Product> addProduct(@RequestBody Product product) {
@@ -75,7 +77,6 @@ public class ProductController {
         }
     }
 
-    // Additional class to map the JSON body
     static class UpdateRequest {
         private String newName;
 

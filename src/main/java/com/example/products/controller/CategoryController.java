@@ -15,12 +15,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
+    CategoryService categoryService;
+    ProductService productService;
 
-    @Autowired
-    private CategoryService categoryService;
-
-    @Autowired
-    private ProductService productService;
+    public CategoryController(CategoryService categoryService, ProductService productService) {
+        this.categoryService = categoryService;
+        this.productService = productService;
+    }
 
     @PostMapping
     public ResponseEntity<Category> createCategory(@RequestParam String name) {

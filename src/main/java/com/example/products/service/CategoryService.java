@@ -5,7 +5,6 @@ import com.example.products.model.Subcategory;
 import com.example.products.repository.CategoryRepository;
 import com.example.products.repository.SubcategoryRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,11 +12,13 @@ import java.util.Optional;
 
 @Service
 public class CategoryService {
+    CategoryRepository categoryRepository;
+    SubcategoryRepository subcategoryRepository;
 
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
-    private SubcategoryRepository subcategoryRepository;
+    public CategoryService(CategoryRepository categoryRepository, SubcategoryRepository subcategoryRepository) {
+        this.categoryRepository = categoryRepository;
+        this.subcategoryRepository = subcategoryRepository;
+    }
 
 
     @Transactional

@@ -18,12 +18,15 @@ import java.util.Optional;
 @Service
 public class ProductService {
 
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private SubcategoryRepository subcategoryRepository;
-    @Autowired
-    private CategoryRepository categoryRepository;
+    ProductRepository productRepository;
+    CategoryRepository categoryRepository;
+    SubcategoryRepository subcategoryRepository;
+
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, SubcategoryRepository subcategoryRepository){
+        this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
+        this.subcategoryRepository = subcategoryRepository;
+    }
 
     private Integer subcategoryId;
 
