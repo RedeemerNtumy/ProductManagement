@@ -70,7 +70,7 @@ function ProductList() {
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     return (
-        <div style={{ padding: '20px', maxWidth: '1200px', margin: 'auto', fontFamily: 'Arial, sans-serif' }}>
+        <div style={{padding: '20px', maxWidth: '1200px', margin: 'auto', fontFamily: 'Arial, sans-serif'}}>
             <h2>Product List</h2>
             <form onSubmit={(e) => e.preventDefault()}>
                 <input
@@ -78,15 +78,22 @@ function ProductList() {
                     value={searchTerm}
                     onChange={handleSearchChange}
                     placeholder="Enter product name"
-                    style={{ padding: '10px', margin: '10px', width: '300px' }}
+                    style={{padding: '10px', margin: '10px', width: '300px'}}
                 />
             </form>
             {loading && <p>Loading...</p>}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around' }}>
+            {error && <p style={{color: 'red'}}>{error}</p>}
+            <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around'}}>
                 {currentProducts.map((product) => (
-                    <div key={product.id} style={{ margin: '10px', border: '1px solid #ccc', padding: '20px', width: '220px', borderRadius: '4px' }}>
-                        <img src={product.imageUrl || "/logo512.png"} alt="Product" style={{ width: '100%', marginBottom: '8px' }} />
+                    <div key={product.id} style={{
+                        margin: '10px',
+                        border: '1px solid #ccc',
+                        padding: '20px',
+                        width: '220px',
+                        borderRadius: '4px'
+                    }}>
+                        <img src={product.imageUrl || "/logo512.png"} alt="Product"
+                             style={{width: '100%', marginBottom: '8px'}}/>
                         <h3>{product.name}</h3>
                         <p>{product.description}</p>
                         <p>${product.price}</p>
@@ -96,27 +103,81 @@ function ProductList() {
                                     type="text"
                                     value={editedName}
                                     onChange={(e) => setEditedName(e.target.value)}
-                                    style={{ margin: '8px 0', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', width: '100%' }}
+                                    style={{
+                                        margin: '8px 0',
+                                        padding: '10px',
+                                        borderRadius: '4px',
+                                        border: '1px solid #ccc',
+                                        width: '100%'
+                                    }}
                                 />
-                                <button onClick={() => saveEdit(product.id, editedName)} style={{ backgroundColor: '#4CAF50', color: 'white', padding: '10px', borderRadius: '4px', border: 'none', cursor: 'pointer', width: '100%' }}>Save</button>
-                                <button onClick={cancelEdit} style={{ backgroundColor: '#ccc', color: 'white', padding: '10px', borderRadius: '4px', border: 'none', cursor: 'pointer', width: '100%', marginTop: '8px' }}>Cancel</button>
+                                <button onClick={() => saveEdit(product.id, editedName)} style={{
+                                    backgroundColor: '#4CAF50',
+                                    color: 'white',
+                                    padding: '10px',
+                                    borderRadius: '4px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    width: '100%'
+                                }}>Save
+                                </button>
+                                <button onClick={cancelEdit} style={{
+                                    backgroundColor: '#ccc',
+                                    color: 'white',
+                                    padding: '10px',
+                                    borderRadius: '4px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    width: '100%',
+                                    marginTop: '8px'
+                                }}>Cancel
+                                </button>
                             </>
                         ) : (
                             <>
-                                <button onClick={() => handleEdit(product)} style={{ backgroundColor: '#FF9900', color: 'white', padding: '10px', borderRadius: '4px', border: 'none', cursor: 'pointer', width: '100%' }}>Edit</button>
-                                <button onClick={() => handleDelete(product.id)} style={{ backgroundColor: '#f44336', color: 'white', padding: '10px', borderRadius: '4px', textAlign: 'center', textDecoration: 'none', marginTop: '8px' }}>Delete</button>
+                                <button onClick={() => handleEdit(product)} style={{
+                                    backgroundColor: '#FF9900',
+                                    color: 'white',
+                                    padding: '10px',
+                                    borderRadius: '4px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    width: '100%'
+                                }}>Edit
+                                </button>
+                                <button onClick={() => handleDelete(product.id)} style={{
+                                    backgroundColor: '#f44336',
+                                    color: 'white',
+                                    padding: '10px',
+                                    borderRadius: '4px',
+                                    textAlign: 'center',
+                                    textDecoration: 'none',
+                                    marginTop: '8px'
+                                }}>Delete
+                                </button>
                             </>
                         )}
                     </div>
                 ))}
             </div>
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <div style={{textAlign: 'center', marginTop: '20px'}}>
                 {[...Array(Math.ceil(products.length / productsPerPage)).keys()].map(number => (
-                    <button key={number + 1} onClick={() => paginate(number + 1)} style={{ backgroundColor: '#FF9900', color: 'white', padding: '10px', borderRadius: '4px', cursor: 'pointer', margin: '5px' }}>
+                    <button key={number + 1}
+                            onClick={() => paginate(number + 1)}
+                            style={{
+                                backgroundColor: currentPage === number + 1 ? '#FF9900' : 'white',
+                                color: currentPage === number + 1 ? 'white' : '#FF9900', // Text color changes based on selection
+                                padding: '10px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                margin: '5px',
+                                border: '1px solid #FF9900' // Consistent border color
+                            }}>
                         {number + 1}
                     </button>
                 ))}
             </div>
+
         </div>
     );
 }
