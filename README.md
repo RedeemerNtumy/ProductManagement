@@ -6,28 +6,11 @@ This document outlines the architecture and component design of the Product Mana
 
 ## Architecture Diagram
 
-Below is the architecture diagram illustrating the main components of the system and their interactions:
+Below is the class diagram.
 
-```plaintext
-+---------------------+        +---------------------+
-|   CategoryController|        |   ProductController |
-+---------+-----------+        +----------+----------+
-          |                                  |
-          v                                  v
-+---------+-----------+        +------------+---------+
-|   CategoryService   |        |   ProductService     |
-+---------+-----------+        +------------+---------+
-          |                                  |
-          v                                  v
-+---------+-----------+        +------------+---------+
-|   CategoryRepository|        |   ProductRepository  |
-+---------+-----------+        +------------+---------+
-          |                                  |
-          v                                  v
-+---------+-----------+        +------------+---------+
-|       MySQL Database        |        MySQL Database |
-+---------------------+        +----------------------+
-```
+![alt text](https://github.com/RedeemerNtumy/ProductManagement/blob/main/class-diagram.png?raw=true)
+
+
 ## Component Descriptions
 ### Controllers
 
