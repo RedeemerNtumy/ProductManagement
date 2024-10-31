@@ -15,6 +15,5 @@ public class SubcategoryDto {
 
     private Long id;
     private String name;
-    private CategoryDto category;
     private Set<Product> products = new HashSet<>();
 }

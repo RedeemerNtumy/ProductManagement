@@ -15,6 +15,6 @@ public class CategoryDto {
     private SubcategoryDto rightSubcategory;
 
     public boolean hasSubCategory(CategoryDto category) {
-        return (category.rightSubcategory != null && category.equals(rightSubcategory)) || (category.leftSubcategory != null && category.equals(leftSubcategory));
+        return (category.equals(rightSubcategory)) || (category.equals(leftSubcategory));
     }
 }

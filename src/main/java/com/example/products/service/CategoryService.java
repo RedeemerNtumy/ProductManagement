@@ -80,25 +80,24 @@ public class CategoryService {
             throw new IllegalArgumentException("Category not found with ID: " + categoryId);
         }
     }
-    @Transactional
-    public Subcategory addSubcategoryToCategory(int categoryId, String subcategoryName) {
-        Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
-        if (categoryOptional.isPresent()) {
-            Category category = categoryOptional.get();
-            Subcategory subcategory = new Subcategory(subcategoryName, category);
 
-            // Try to add the subcategory as either left or right child
+    @Transactional
+    public SubcategoryDto addSubcategoryToCategory(int categoryId, String subcategoryName) {
+        Category category = categoryRepository.findById(categoryId).orElse(null);
+        if (category != null) {
+            Subcategory subcategory = new Subcategory(subcategoryName, category);
+            subcategoryRepository.save(subcategory);
             boolean added = category.addSubcategory(subcategory);
             if (!added) {
                 throw new IllegalStateException("Category can only have 2 subcategories.");
             }
-
-            subcategoryRepository.save(subcategory);
-            return subcategory;
-        } else {
-            throw new IllegalArgumentException("Category not found with ID: " + categoryId);
+            return SubcategoryDto.builder()
+                    .name(subcategoryName)
+                    .build();
         }
+        throw new IllegalArgumentException("Category not found with ID: " + categoryId);
     }
+
     @Transactional
     public void deleteSubcategory(Long subcategoryId) {
         Optional<Subcategory> subcategoryOptional = subcategoryRepository.findById(subcategoryId);

@@ -27,14 +27,14 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoryDto> createCategory(@RequestParam String name) {
+    public ResponseEntity<?> createCategory(@RequestParam String name) {
         try {
             CategoryDto category = categoryService.createCategory(name);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(category);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body("Error Creating Category");
         }
     }
 
@@ -56,15 +56,17 @@ public class CategoryController {
     }
 
     @PostMapping("/{categoryId}/subcategories")
-    public ResponseEntity<Subcategory> addSubcategory(@PathVariable int categoryId, @RequestParam String name, HttpServletResponse response) {
+    public ResponseEntity<?> addSubcategory(@PathVariable int categoryId, @RequestParam String name, HttpServletResponse response) {
         try {
-            Subcategory subcategory = categoryService.addSubcategoryToCategory(categoryId, name);
+            SubcategoryDto subcategory = categoryService.addSubcategoryToCategory(categoryId, name);
             return ResponseEntity.ok(subcategory);
         } catch (IllegalStateException e) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setStatus(HttpStatus.FORBIDDEN.value());
             return ResponseEntity.badRequest().body(null);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error Adding Subcategory");
         }
     }
     @GetMapping("/{categoryId}")
@@ -107,7 +109,7 @@ public class CategoryController {
             }
             return ResponseEntity.ok(subcategories);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);  // Generic error handling
+            return ResponseEntity.badRequest().body(null);
         }
     }
     @DeleteMapping("/{categoryId}/subcategories/{subcategoryId}")
@@ -117,7 +119,9 @@ public class CategoryController {
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
-        }
+        } catch (Exception e) {
+        return ResponseEntity.badRequest().body(null);
+    }
     }
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<?> deleteCategory(@PathVariable int categoryId) {
