@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryService {
@@ -39,23 +40,27 @@ public class CategoryService {
 
     @Transactional
     public CategoryDto getCategoryById(int categoryId) {
-        Category category=categoryRepository.findById(categoryId).orElse(null);
-        return buildCategoryDto(category);
-
+        return categoryRepository.findById(categoryId)
+                .map(this::buildCategoryDto)
+                .orElse(null);
     }
 
     @Transactional
-    public List<Subcategory> getSubcategoriesByCategoryId(int categoryId) {
-        return subcategoryRepository.findByCategoryId(categoryId);  // Assuming you have a method in your repository to find by category ID
+    public List<SubcategoryDto> getSubcategoriesByCategoryId(int categoryId) {
+        return subcategoryRepository.findByCategoryId(categoryId)
+                .stream().map(this::buildSubcategoryDto).collect(Collectors.toList());
     }
 
     @Transactional
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll(); // Using JpaRepository's findAll() method
+    public List<CategoryDto> getAllCategories() {
+        return categoryRepository.findAll().stream()
+                .map(this::buildCategoryDto).collect(Collectors.toList());
     }
+
     @Transactional
-    public List<Subcategory> getAllSubcategories() {
-        return subcategoryRepository.findAll(); // Assuming you have a subcategoryRepository
+    public List<SubcategoryDto> getAllSubcategories() {
+        return subcategoryRepository.findAll().stream()
+                .map(this::buildSubcategoryDto).collect(Collectors.toList());
     }
 
     @Transactional

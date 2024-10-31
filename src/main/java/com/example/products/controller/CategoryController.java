@@ -1,6 +1,7 @@
 package com.example.products.controller;
 
 import com.example.products.dto.CategoryDto;
+import com.example.products.dto.SubcategoryDto;
 import com.example.products.model.Category;
 import com.example.products.model.Subcategory;
 import com.example.products.service.CategoryService;
@@ -80,31 +81,31 @@ public class CategoryController {
         }
     }
     @GetMapping
-    public ResponseEntity<List<Category>> getAllCategories() {
+    public ResponseEntity<List<CategoryDto>> getAllCategories() {
         try {
-            List<Category> categories = categoryService.getAllCategories();
+            List<CategoryDto> categories = categoryService.getAllCategories();
             return ResponseEntity.ok(categories);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
     @GetMapping("/subcategories")
-    public ResponseEntity<List<Subcategory>> getAllSubcategories() {
+    public ResponseEntity<List<SubcategoryDto>> getAllSubcategories() {
         try {
-            List<Subcategory> subcategories = categoryService.getAllSubcategories();
+            List<SubcategoryDto> subcategories = categoryService.getAllSubcategories();
             return ResponseEntity.ok(subcategories);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
     @GetMapping("/{categoryId}/subcategories")
-    public ResponseEntity<List<Subcategory>> getSubcategoriesByCategory(@PathVariable int categoryId) {
+    public ResponseEntity<List<SubcategoryDto>> getSubcategoriesByCategory(@PathVariable int categoryId) {
         try {
-            List<Subcategory> subcategories = categoryService.getSubcategoriesByCategoryId(categoryId);
+            List<SubcategoryDto> subcategories = categoryService.getSubcategoriesByCategoryId(categoryId);
             if (subcategories.isEmpty()) {
                 return ResponseEntity.noContent().build();  // No subcategories found
             }
-            return ResponseEntity.ok(subcategories);  // Return the list of subcategories
+            return ResponseEntity.ok(subcategories);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);  // Generic error handling
         }
