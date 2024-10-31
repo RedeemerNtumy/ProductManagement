@@ -1,7 +1,5 @@
 package com.example.products.dto;
-
 import com.example.products.model.Category;
-import com.example.products.model.Subcategory;
 import lombok.*;
 
 @AllArgsConstructor
@@ -15,4 +13,8 @@ public class CategoryDto {
     private String name;
     private SubcategoryDto leftSubcategory;
     private SubcategoryDto rightSubcategory;
+
+    public boolean hasSubCategory(CategoryDto category) {
+        return (category.rightSubcategory != null && category.equals(rightSubcategory)) || (category.leftSubcategory != null && category.equals(leftSubcategory));
+    }
 }

@@ -41,10 +41,10 @@ public class CategoryController {
     public ResponseEntity<?> updateCategory(@PathVariable("id") int id, @RequestBody Map<String, String> body) {
         try {
             String name = body.get("name");
-            Category category = categoryService.getCategoryById(id);
+            CategoryDto category = categoryService.getCategoryById(id);
             if (category != null) {
                 category.setName(name);
-                Category updatedCategory = categoryService.updateCategory(category);
+                CategoryDto updatedCategory = categoryService.updateCategory(category);
                 return ResponseEntity.ok(updatedCategory);
             } else {
                 return ResponseEntity.notFound().build();
@@ -67,9 +67,9 @@ public class CategoryController {
         }
     }
     @GetMapping("/{categoryId}")
-    public ResponseEntity<Category> getCategoryWithSubcategories(@PathVariable int categoryId) {
+    public ResponseEntity<CategoryDto> getCategoryWithSubcategories(@PathVariable int categoryId) {
         try {
-            Category category = categoryService.getCategoryById(categoryId);
+            CategoryDto category = categoryService.getCategoryById(categoryId);
             if (category != null) {
                 return ResponseEntity.ok(category);
             } else {
@@ -121,7 +121,7 @@ public class CategoryController {
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<?> deleteCategory(@PathVariable int categoryId) {
         try {
-            Category category = categoryService.getCategoryById(categoryId);
+            CategoryDto category = categoryService.getCategoryById(categoryId);
             if (category != null) {
                 // Ensure the category does not have subcategories or products that depend on it
                 if (category.hasSubCategory(category)) {

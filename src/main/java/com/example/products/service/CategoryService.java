@@ -31,12 +31,17 @@ public class CategoryService {
     }
 
     @Transactional
-    public Category updateCategory(Category category) {
-        return categoryRepository.save(category);
+    public CategoryDto updateCategory(CategoryDto category) {
+        Category category1 = buildCategoryEntity(category);
+        categoryRepository.save(category1);
+        return buildCategoryDto(category1);
     }
+
     @Transactional
-    public Category getCategoryById(int categoryId) {
-        return categoryRepository.findById(categoryId).orElse(null);
+    public CategoryDto getCategoryById(int categoryId) {
+        Category category=categoryRepository.findById(categoryId).orElse(null);
+        return buildCategoryDto(category);
+
     }
 
     @Transactional
@@ -125,6 +130,24 @@ public class CategoryService {
                 .id(subcategory.getId())
                 .name(subcategory.getName())
                 .build();
+    }
+    private Category buildCategoryEntity(CategoryDto categoryDto) {
+        Category category = new Category(categoryDto.getName());
+        category.setId(categoryDto.getId());
+        if (categoryDto.getLeftSubcategory() != null) {
+            category.setLeftSubcategory(buildSubcategoryEntity(categoryDto.getLeftSubcategory()));
+        }
+        if (categoryDto.getRightSubcategory() != null) {
+            category.setRightSubcategory(buildSubcategoryEntity(categoryDto.getRightSubcategory()));
+        }
+        return category;
+    }
+
+    private Subcategory buildSubcategoryEntity(SubcategoryDto subcategoryDto) {
+        Subcategory subcategory = new Subcategory();
+        subcategory.setId(subcategoryDto.getId());
+        subcategory.setName(subcategoryDto.getName());
+        return subcategory;
     }
 
 }
