@@ -1,5 +1,7 @@
 package com.example.products.service;
 
+import com.example.products.dto.CategoryDto;
+import com.example.products.dto.SubcategoryDto;
 import com.example.products.model.Category;
 import com.example.products.model.Subcategory;
 import com.example.products.repository.CategoryRepository;
@@ -22,9 +24,10 @@ public class CategoryService {
 
 
     @Transactional
-    public Category createCategory(String name) {
+    public CategoryDto createCategory(String name) {
         Category category = new Category(name);
-        return categoryRepository.save(category);
+        categoryRepository.save(category);
+        return buildCategoryDto(category);
     }
 
     @Transactional
@@ -105,4 +108,23 @@ public class CategoryService {
             throw new IllegalArgumentException("Subcategory not found with ID: " + subcategoryId);
         }
     }
+
+    private CategoryDto buildCategoryDto(Category category) {
+       return CategoryDto.builder()
+               .id(category.getId())
+               .name(category.getName())
+               .leftSubcategory(category.getLeftSubcategory() != null ?
+                       buildSubcategoryDto(category.getLeftSubcategory()): null)
+               .rightSubcategory(category.getRightSubcategory() != null ?
+                       buildSubcategoryDto(category.getRightSubcategory()):null)
+               .build();
+    }
+
+    private SubcategoryDto buildSubcategoryDto(Subcategory subcategory) {
+        return SubcategoryDto.builder()
+                .id(subcategory.getId())
+                .name(subcategory.getName())
+                .build();
+    }
+
 }
